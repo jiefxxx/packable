@@ -106,6 +106,40 @@ impl<const DIMENSIONS: usize> Packable for [u8; DIMENSIONS]{
     }
 }
 
+#[derive(Debug, Default)]
+pub struct Flag{
+    base: u8,
+}
+
+impl Flag{
+    pub fn set(&mut self, id: u8, value: bool){
+        if value{
+            self.base = self.base|(0x1<<id)
+        }
+        else{
+            self.base = self.base&!(0x1<<id)
+        }
+    }
+
+    pub fn get(&self, id: u8) -> bool{
+        (self.base&(0x1<<id))>0
+    }
+}
+
+impl Packable for Flag{
+    fn pack(&self, litle_endian: bool) -> Vec<u8> {
+        self.base.pack(litle_endian)
+    }
+
+    fn size(&self) -> usize {
+        self.base.size()
+    }
+
+    fn unpack(&mut self, data: &mut Vec<u8>, litle_endian: bool) -> Result<(), PackableError> {
+        self.base.unpack(data, litle_endian)
+    }
+}
+
 #[derive(Debug)]
 pub enum ErrorKind{
     TryFromSliceError,
